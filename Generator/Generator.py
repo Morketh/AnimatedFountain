@@ -4,7 +4,7 @@
 #from vapory import *
 #from moviepy.editor import VideoClip, AudioFileClip
 import time
-from libs import fluidsynth
+from lib import fluidsynth
 
 #
 # Soundfont files downloaded from: https://giantsoundfont.hpage.com/downloads.html
@@ -17,6 +17,7 @@ from libs import fluidsynth
 # VIDEO_NAME = MIDI_NAME[:-3]+"mp4"
 #
 
+SoundFontFile = "soundfonts"
 
 fs = fluidsynth.Synth()
 fs.start()

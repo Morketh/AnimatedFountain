@@ -21,10 +21,15 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Generator.py" />
+    <Compile Include="lib\fluidsynth.py" />
+    <Compile Include="lib\__init__.py" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fountain_particles.pov" />
     <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="lib\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
