@@ -17,12 +17,12 @@ from lib import fluidsynth
 # VIDEO_NAME = MIDI_NAME[:-3]+"mp4"
 #
 
-SoundFontFile = "soundfonts"
+SoundFontFile = "soundfonts/6.0bank1.sf2"
 
 fs = fluidsynth.Synth()
 fs.start()
 
-sfid = fs.sfload("example.sf2")
+sfid = fs.sfload(SoundFontFile)
 fs.program_select(0, sfid, 0, 0)
 
 fs.noteon(0, 60, 30)

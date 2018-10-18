@@ -33,7 +33,7 @@ from future.utils import iteritems
 # (mostly needed for Windows distributions of libfluidsynth supplied with QSynth)
 
 # For 64 bit on windows 
-lib = r'libs/libfluidsynth64.dll'
+lib = r'lib/libfluidsynth64.dll'
 
 if lib is None:
     lib = find_library('fluidsynth') or \
