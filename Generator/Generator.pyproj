@@ -5,8 +5,7 @@
     <ProjectGuid>6f042df7-2b8c-4beb-8c85-e85a3c5e8a01</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>Generator.py</StartupFile>
-    <SearchPath>
-    </SearchPath>
+    <SearchPath>libs</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Generator</Name>
@@ -24,6 +23,7 @@
     <Compile Include="Generator.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".gitignore" />
     <Content Include="fountain_particles.pov" />
     <Content Include="requirements.txt" />
   </ItemGroup>
