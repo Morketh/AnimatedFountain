@@ -5,7 +5,7 @@
     <ProjectGuid>6f042df7-2b8c-4beb-8c85-e85a3c5e8a01</ProjectGuid>
     <ProjectHome>.</ProjectHome>
     <StartupFile>Generator.py</StartupFile>
-    <SearchPath>libs</SearchPath>
+    <SearchPath>lib</SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
     <Name>Generator</Name>
