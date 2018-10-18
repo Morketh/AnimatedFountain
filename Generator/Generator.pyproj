@@ -23,7 +23,6 @@
     <Compile Include="Generator.py" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include=".gitignore" />
     <Content Include="fountain_particles.pov" />
     <Content Include="requirements.txt" />
   </ItemGroup>
