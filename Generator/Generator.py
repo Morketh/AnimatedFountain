@@ -1,14 +1,21 @@
-import os
-import numpy as np
-import mido
-from vapory import *
-from moviepy.editor import VideoClip, AudioFileClip
+#import os
+#import numpy as np
+#import mido
+#from vapory import *
+#from moviepy.editor import VideoClip, AudioFileClip
 import time
 from libs import fluidsynth
 
-#MIDI_NAME = "./selec/lets_fall_in_love.mid"
-#MP3_NAME = MIDI_NAME[:-3]+"mp3"
-#VIDEO_NAME = MIDI_NAME[:-3]+"mp4"
+#
+# Soundfont files downloaded from: https://giantsoundfont.hpage.com/downloads.html
+# Giant Soundfont V6.0
+#
+# Additonal soundfonts can be found at: http://www.synthfont.com/links_to_soundfonts.html
+#
+# MIDI_NAME = "./selec/lets_fall_in_love.mid"
+# MP3_NAME = MIDI_NAME[:-3]+"mp3"
+# VIDEO_NAME = MIDI_NAME[:-3]+"mp4"
+#
 
 
 fs = fluidsynth.Synth()
