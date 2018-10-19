@@ -29,6 +29,7 @@ CWD = os.getcwd()
 OutputFileName = "{}_{}-frames_{}-FPS".format(SceneName,MAX_FRAMES,FPS)
 ImageFrmtStr = "{}-{:03}.png"
 ImageDir = CWD+"\\img\\"
+Mp4Dir = CWD+"\\mp4\\"
 
 #
 # Soundfont files downloaded from: https://giantsoundfont.hpage.com/downloads.html
@@ -102,10 +103,10 @@ while FRAMENUMBER < MAX_FRAMES:
                included = ["colors.inc", "textures.inc"],
                defaults = [Finish( 'ambient', 0.1, 'diffuse', 0.9)] )
 
-    scene.render(ImageDir+ImageFrmtStr.format("Test",FRAMENUMBER), antialiasing=0.001, height=ImgHeight, width=ImgWidth)
-    Frames.append(ImageClip(ImageDir+ImageFrmtStr.format("Test",FRAMENUMBER)).set_duration(1/FPS))
+    scene.render(ImageDir+ImageFrmtStr.format(OutputFileName,FRAMENUMBER), antialiasing=0.001, height=ImgHeight, width=ImgWidth)
+    Frames.append(ImageClip(ImageDir+ImageFrmtStr.format(OutputFileName,FRAMENUMBER)).set_duration(1/FPS))
     
 
 concat_clip = concatenate_videoclips(Frames, method="compose")
-concat_clip.write_videofile(ImageDir+"{}.mp4".format(), fps=FPS)
+concat_clip.write_videofile(Mp4Dir+"{}.mp4".format(OutputFileName), fps=FPS)
 
