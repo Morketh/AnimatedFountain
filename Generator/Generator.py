@@ -7,7 +7,20 @@ import time
 #from lib import fluidsynth
 import os
 from vapory import *
+
 CWD = os.getcwd()
+ImageDir = CWD+"\\img\\"
+# Pad the file names with zeros {:02} MUST match the length (Number of Digits) of the MAX_FRAMES number below
+ImageName = "{}-{:03}.png"
+MAX_FRAMES = 100
+# starting frame for animations this MUST satisfy 0 < FRAMENUMBER < MAX_FRAMES
+# As long as this is true any animation sequence (or subset) can be rendered
+FRAMENUMBER = 1 
+
+# SCENE GLOBALS #
+ImgWidth = 1920
+ImgHeight = 1080
+CAM_TYPE = 2 # see CamType() for a list of camera definitions
 
 #
 # Soundfont files downloaded from: https://giantsoundfont.hpage.com/downloads.html
@@ -23,55 +36,59 @@ CWD = os.getcwd()
 
 #SoundFontFile = "soundfonts/6.0bank1.sf2"
 """
-A chessboard. From the Povray examples by 
+Kinematic Logo Animation
+By: Andrew Malone
 """
 
-sun = LightSource([-1500,2500,-2500], 'color', 'White')
 
 
-sky = Plane([0,1,0], 1, 'hollow',  
-            Texture( Pigment( 'bozo',
-                              'turbulence', 0.92,
-                               ColorMap(   [0.00, 'rgb', [0.18, 0.18, .9]],
-                                           [0.50, 'rgb', [0.18, 0.18, .9]],
-                                           [0.70, 'rgb', [1,1,1]],
-                                           [0.85, 'rgb', [0.25,0.25,0.25]],
-                                           [1.0 , 'rgb', [0.5,0.5,0.5]]),
-                              'scale', [2.5,2.5,3.75],
-                              'translate', [-1.25,0,0]),
-            Finish('ambient', 1, 'diffuse', 0)),
-            'scale', 10000)
+def CamType(i):
+    if i == 1:
+        return Camera('angle', 45, 'location', [0.0 , 1.0,-2.0], 'look_at', [0 , 1.0 , 0.0])
+    elif i == 2:
+        return Camera('angle', 45, 'location', [-35.0 , 25.0 ,-30.0], 'look_at', [0 , 1.0 , 0.0])
 
-ground = Plane( [0,1,0], 0, 
-            Texture( Pigment( 'color', 'rgb', [0.8*i for i in [1.00,0.95,0.8]]),
-                     Normal('bumps', 0.75, 'scale', 0.0125),
-                     Finish('phong', 0.1))) 
-
-fog = Fog('fog_type',   2,
-          'distance',   20,
-          'color',     [1.00,0.98,0.9],
-          'fog_offset', 0.1,
-          'fog_alt',    1,
-          'turbulence', 1.8)
+# Generic sun object located at x,y,z
+sun = LightSource([-900,2500,-3500], 'color', 'White')
 
 
-chessboard = Union( Box([-1.01, 0, -1.01], [1.01, 0.049, 1.01],
-                        Texture( Pigment( 'color', [0.37, 0.25, 0.15] ))),
-                    Box([-1, 0, -1], [1, 0.05, 1],
-                         Texture( Pigment( 'checker',
-                                          'color', [1,1,1],
-                                          'color', [0,0,0]),
-                                  'scale', 0.25),   
-                         ),
-                    'rotate', [-25, 30,0],
-                    'translate', [0.05, 0.6, 0])
 
-scene = Scene( Camera('angle', 75,'location',  [0.0 , 1.0,-2.0],
-                      'look_at', [0 , 0.2 , 0.0]),
-               objects = [sun, sky, ground, fog, chessboard],
+# Colors and Textures #
+CI_ColorMap = ColorMap([0.0,  'rgb', [0.0, 0.0, 0.0]],
+                       [0.7,  'rgb', [0.0, 0.3, 0.0]],
+                       [0.5,  'rgb', [0.0, 0.7, 0.0]],
+                       [0.6,  'rgb', [0.0, 0.2, 0.0]],
+                       [0.65, 'rgb', [0.0, 1.0, 1.0]],
+                       [0.75, 'rgb', [0.0, 0.2, 0.0]],
+                       [0.8,  'rgb', [0.0, 0.5, 0.0]],
+                       [1.0,  'rgb', [0.0, 1.0, 0.0]])
+
+CI_Plasma_Marble = Pigment('marble', 'turbulence', 2.75, CI_ColorMap, 'scale', 2.5, 'rotate', [0, 7.5 ,0])
+# End of Colors and Textures #
+
+# Define a Wheel Object #
+WheelH = 1
+WheelRadius = 2
+SpokeW = (WheelRadius*2)+2
+SpokeAngle = 360/3
+Axel = Cylinder([0,-(WheelH/2),0], [0,(WheelH/2),0], WheelRadius)
+# Start -x -y -z End x y z
+Spoke = Box([-SpokeW/2,-(WheelH/2),0.5],[SpokeW/2,(WheelH/2),-0.5])
+
+while FRAMENUMBER < MAX_FRAMES+1:
+    Wheel = Object(Union(Axel,
+                   Object(Spoke,'rotate',[0,SpokeAngle*1,0]),
+                   Object(Spoke,'rotate',[0,SpokeAngle*2,0]),
+                   Object(Spoke,'rotate',[0,SpokeAngle*3,0])
+                   ), Texture(CI_Plasma_Marble), 'rotate', [0,(360/MAX_FRAMES)*FRAMENUMBER,0])
+
+
+# End of Wheel Object #
+
+    scene = Scene( CamType(CAM_TYPE),
+               objects = [sun,Wheel],
                included = ["colors.inc", "textures.inc"],
                defaults = [Finish( 'ambient', 0.1, 'diffuse', 0.9)] )
 
-
-
-scene.render(CWD+"\\chessboard.png", antialiasing=0.001)
+    scene.render(ImageDir+ImageName.format("Test",FRAMENUMBER), antialiasing=0.001, remove_temp=False, height=ImgHeight, width=ImgWidth)
+    FRAMENUMBER += 1
