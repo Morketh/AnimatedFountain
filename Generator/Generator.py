@@ -7,20 +7,28 @@ import time
 #from lib import fluidsynth
 import os
 from vapory import *
+from moviepy.editor import *
 
-CWD = os.getcwd()
-ImageDir = CWD+"\\img\\"
-# Pad the file names with zeros {:02} MUST match the length (Number of Digits) of the MAX_FRAMES number below
-ImageName = "{}-{:03}.png"
-MAX_FRAMES = 100
-# starting frame for animations this MUST satisfy 0 < FRAMENUMBER < MAX_FRAMES
-# As long as this is true any animation sequence (or subset) can be rendered
-FRAMENUMBER = 1 
+## SETTINGS ##
 
-# SCENE GLOBALS #
+SceneName = "GreenGear"
 ImgWidth = 1920
 ImgHeight = 1080
 CAM_TYPE = 2 # see CamType() for a list of camera definitions
+
+# starting frame for animations this MUST satisfy 0 < FRAMENUMBER < MAX_FRAMES
+# As long as this is true any animation sequence (or subset) can be rendered
+FRAMENUMBER = 0
+MAX_FRAMES = 500
+FPS = 120
+
+# SCENE GLOBALS #
+CWD = os.getcwd()
+
+## Internal Variables ##
+OutputFileName = "{}_{}-frames_{}-FPS".format(SceneName,MAX_FRAMES,FPS)
+ImageFrmtStr = "{}-{:03}.png"
+ImageDir = CWD+"\\img\\"
 
 #
 # Soundfont files downloaded from: https://giantsoundfont.hpage.com/downloads.html
@@ -51,8 +59,6 @@ def CamType(i):
 # Generic sun object located at x,y,z
 sun = LightSource([-900,2500,-3500], 'color', 'White')
 
-
-
 # Colors and Textures #
 CI_ColorMap = ColorMap([0.0,  'rgb', [0.0, 0.0, 0.0]],
                        [0.7,  'rgb', [0.0, 0.3, 0.0]],
@@ -71,16 +77,22 @@ WheelH = 1
 WheelRadius = 2
 SpokeW = (WheelRadius*2)+2
 SpokeAngle = 360/3
+
+## Static Objects ##
 Axel = Cylinder([0,-(WheelH/2),0], [0,(WheelH/2),0], WheelRadius)
 # Start -x -y -z End x y z
 Spoke = Box([-SpokeW/2,-(WheelH/2),0.5],[SpokeW/2,(WheelH/2),-0.5])
 
-while FRAMENUMBER < MAX_FRAMES+1:
+Frames = []
+## Scene Animation ##
+while FRAMENUMBER < MAX_FRAMES:
+    FRAMENUMBER += 1
+    print("Rendering Frame: {} of {}".format(FRAMENUMBER,MAX_FRAMES))
     Wheel = Object(Union(Axel,
                    Object(Spoke,'rotate',[0,SpokeAngle*1,0]),
                    Object(Spoke,'rotate',[0,SpokeAngle*2,0]),
                    Object(Spoke,'rotate',[0,SpokeAngle*3,0])
-                   ), Texture(CI_Plasma_Marble), 'rotate', [0,(360/MAX_FRAMES)*FRAMENUMBER,0])
+                   ), Texture(CI_Plasma_Marble), 'rotate', [0,((360*2)/MAX_FRAMES)*FRAMENUMBER,0])
 
 
 # End of Wheel Object #
@@ -90,5 +102,10 @@ while FRAMENUMBER < MAX_FRAMES+1:
                included = ["colors.inc", "textures.inc"],
                defaults = [Finish( 'ambient', 0.1, 'diffuse', 0.9)] )
 
-    scene.render(ImageDir+ImageName.format("Test",FRAMENUMBER), antialiasing=0.001, remove_temp=False, height=ImgHeight, width=ImgWidth)
-    FRAMENUMBER += 1
+    scene.render(ImageDir+ImageFrmtStr.format("Test",FRAMENUMBER), antialiasing=0.001, height=ImgHeight, width=ImgWidth)
+    Frames.append(ImageClip(ImageDir+ImageFrmtStr.format("Test",FRAMENUMBER)).set_duration(1/FPS))
+    
+
+concat_clip = concatenate_videoclips(Frames, method="compose")
+concat_clip.write_videofile(ImageDir+"{}.mp4".format(), fps=FPS)
+
