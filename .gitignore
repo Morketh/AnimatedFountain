@@ -314,3 +314,4 @@ Temporary Items
 # Generated POV-Ray files
 .png
 Generator/.vs/
+*.bak
