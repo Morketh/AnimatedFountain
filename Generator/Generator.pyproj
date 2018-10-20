@@ -22,6 +22,9 @@
   <ItemGroup>
     <Compile Include="Generator.py" />
     <Compile Include="lib\fluidsynth.py" />
+    <Compile Include="lib\static.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="lib\__init__.py" />
   </ItemGroup>
   <ItemGroup>
