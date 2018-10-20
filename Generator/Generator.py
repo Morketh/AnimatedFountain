@@ -5,7 +5,7 @@
 #from moviepy.editor import VideoClip, AudioFileClip
 import time
 #from lib import fluidsynth
-import os
+import os, math
 from vapory import *
 from moviepy.editor import *
 
@@ -14,18 +14,19 @@ from moviepy.editor import *
 SceneName = "GreenGear"
 ImgWidth = 1920
 ImgHeight = 1080
+AnimationTime = 60 # seconds
+FPS = 120
 CAM_TYPE = 2 # see CamType() for a list of camera definitions
 
 # starting frame for animations this MUST satisfy 0 < FRAMENUMBER < MAX_FRAMES
 # As long as this is true any animation sequence (or subset) can be rendered
 FRAMENUMBER = 0
-MAX_FRAMES = 500
-FPS = 120
 
 # SCENE GLOBALS #
 CWD = os.getcwd()
 
 ## Internal Variables ##
+MAX_FRAMES = AnimationTime*FPS
 OutputFileName = "{}_{}-frames_{}-FPS".format(SceneName,MAX_FRAMES,FPS)
 ImageFrmtStr = "{}-{:03}.png"
 ImageDir = CWD+"\\img\\"
@@ -50,11 +51,26 @@ By: Andrew Malone
 """
 
 
-
-def CamType(i):
-    if i == 1:
+# speed 120 FPS
+# 't' is pos at time
+def CamType(i,fps,frame):
+    """Returns camera at time if i == 2 elif i == 1 static cam """
+    step=1
+    iy = 25
+    fy = iy+6.5
+    ix = -30
+    fx = 0
+    iz = -30
+    fz = 0
+    
+    y = iy + (fy-iy)*0.5*frame
+    x = ix + (fx-ix)*0.5*frame
+    z = iz + (fz-iz)*0.5*frame
+    
+    #
+    if i == 1: # Static Cam
         return Camera('angle', 45, 'location', [0.0 , 1.0,-2.0], 'look_at', [0 , 1.0 , 0.0])
-    elif i == 2:
+    elif i == 2: # Animated Cam
         return Camera('angle', 45, 'location', [-35.0 , 25.0 ,-30.0], 'look_at', [0 , 1.0 , 0.0])
 
 # Generic sun object located at x,y,z
@@ -93,20 +109,19 @@ while FRAMENUMBER < MAX_FRAMES:
                    Object(Spoke,'rotate',[0,SpokeAngle*1,0]),
                    Object(Spoke,'rotate',[0,SpokeAngle*2,0]),
                    Object(Spoke,'rotate',[0,SpokeAngle*3,0])
-                   ), Texture(CI_Plasma_Marble), 'rotate', [0,((360*2)/MAX_FRAMES)*FRAMENUMBER,0])
+                   ), Texture(CI_Plasma_Marble), 'rotate', [0,((360*24)/MAX_FRAMES)*FRAMENUMBER,0])
 
 
 # End of Wheel Object #
 
-    scene = Scene( CamType(CAM_TYPE),
+    scene = Scene( CamType(CAM_TYPE,FPS,FRAMENUMBER),
                objects = [sun,Wheel],
                included = ["colors.inc", "textures.inc"],
                defaults = [Finish( 'ambient', 0.1, 'diffuse', 0.9)] )
 
-    scene.render(ImageDir+ImageFrmtStr.format(OutputFileName,FRAMENUMBER), antialiasing=0.001, height=ImgHeight, width=ImgWidth)
+    scene.render(ImageDir+ImageFrmtStr.format(OutputFileName,FRAMENUMBER), antialiasing=0.001, height=ImgHeight, width=ImgWidth, remove_temp=False) # Keep Pov File for debugging
     Frames.append(ImageClip(ImageDir+ImageFrmtStr.format(OutputFileName,FRAMENUMBER)).set_duration(1/FPS))
     
 
 concat_clip = concatenate_videoclips(Frames, method="compose")
 concat_clip.write_videofile(Mp4Dir+"{}.mp4".format(OutputFileName), fps=FPS)
-
