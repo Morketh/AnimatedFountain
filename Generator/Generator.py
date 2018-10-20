@@ -1,3 +1,17 @@
+#
+# Soundfont files downloaded from: https://giantsoundfont.hpage.com/downloads.html
+# Giant Soundfont V6.0
+#
+# Additonal soundfonts can be found at: http://www.synthfont.com/links_to_soundfonts.html
+# and here: https://musescore.org/en/handbook/soundfonts-and-sfz-files#install
+#
+# MIDI_NAME = "./selec/lets_fall_in_love.mid"
+# MP3_NAME = MIDI_NAME[:-3]+"mp3"
+# VIDEO_NAME = MIDI_NAME[:-3]+"mp4"
+#
+
+#SoundFontFile = "soundfonts/6.0bank1.sf2"
+
 #import os
 #import numpy as np
 #import mido
@@ -8,6 +22,11 @@ import time
 import os, math
 from vapory import *
 from moviepy.editor import *
+
+"""
+Kinematic Logo Animation
+By: Andrew Malone
+"""
 
 ## SETTINGS ##
 
@@ -31,25 +50,6 @@ OutputFileName = "{}_{}-frames_{}-FPS".format(SceneName,MAX_FRAMES,FPS)
 ImageFrmtStr = "{}-{:03}.png"
 ImageDir = CWD+"\\img\\"
 Mp4Dir = CWD+"\\mp4\\"
-
-#
-# Soundfont files downloaded from: https://giantsoundfont.hpage.com/downloads.html
-# Giant Soundfont V6.0
-#
-# Additonal soundfonts can be found at: http://www.synthfont.com/links_to_soundfonts.html
-# and here: https://musescore.org/en/handbook/soundfonts-and-sfz-files#install
-#
-# MIDI_NAME = "./selec/lets_fall_in_love.mid"
-# MP3_NAME = MIDI_NAME[:-3]+"mp3"
-# VIDEO_NAME = MIDI_NAME[:-3]+"mp4"
-#
-
-#SoundFontFile = "soundfonts/6.0bank1.sf2"
-"""
-Kinematic Logo Animation
-By: Andrew Malone
-"""
-
 
 # speed 120 FPS
 # 't' is pos at time
@@ -123,5 +123,5 @@ while FRAMENUMBER < MAX_FRAMES:
     Frames.append(ImageClip(ImageDir+ImageFrmtStr.format(OutputFileName,FRAMENUMBER)).set_duration(1/FPS))
     
 
-concat_clip = concatenate_videoclips(Frames, method="compose")
+concat_clip = concatenate_videoclips(Frames, method="compose") # exception thrown MemoryError()
 concat_clip.write_videofile(Mp4Dir+"{}.mp4".format(OutputFileName), fps=FPS)
