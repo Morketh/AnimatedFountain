@@ -33,8 +33,8 @@ By: Andrew Malone
 SceneName = "GreenGear"
 ImgWidth = 1920
 ImgHeight = 1080
-AnimationTime = 60 # seconds
-FPS = 120
+AnimationTime = 10 # seconds
+FPS = 116
 CAM_TYPE = 2 # see CamType() for a list of camera definitions
 
 # starting frame for animations this MUST satisfy 0 < FRAMENUMBER < MAX_FRAMES
@@ -47,13 +47,13 @@ CWD = os.getcwd()
 ## Internal Variables ##
 MAX_FRAMES = AnimationTime*FPS
 OutputFileName = "{}_{}-frames_{}-FPS".format(SceneName,MAX_FRAMES,FPS)
-ImageFrmtStr = "{}-{:03}.png"
+ImageFrmtStr = "{}-{:04}.png"
 ImageDir = CWD+"\\img\\"
 Mp4Dir = CWD+"\\mp4\\"
 
 # speed 120 FPS
 # 't' is pos at time
-def CamType(i,fps,frame):
+def SceneCamNow(i,f_now,fps):
     """Returns camera at time if i == 2 elif i == 1 static cam """
     step=1
     iy = 25
@@ -63,9 +63,9 @@ def CamType(i,fps,frame):
     iz = -30
     fz = 0
     
-    y = iy + (fy-iy)*0.5*frame
-    x = ix + (fx-ix)*0.5*frame
-    z = iz + (fz-iz)*0.5*frame
+    y = iy + (fy-iy)*0.5*fps
+    x = ix + (fx-ix)*0.5*fps
+    z = iz + (fz-iz)*0.5*fps
     
     #
     if i == 1: # Static Cam
@@ -77,45 +77,55 @@ def CamType(i,fps,frame):
 sun = LightSource([-900,2500,-3500], 'color', 'White')
 
 # Colors and Textures #
-CI_ColorMap = ColorMap([0.0,  'rgb', [0.0, 0.0, 0.0]],
-                       [0.7,  'rgb', [0.0, 0.3, 0.0]],
-                       [0.5,  'rgb', [0.0, 0.7, 0.0]],
-                       [0.6,  'rgb', [0.0, 0.2, 0.0]],
-                       [0.65, 'rgb', [0.0, 1.0, 1.0]],
-                       [0.75, 'rgb', [0.0, 0.2, 0.0]],
-                       [0.8,  'rgb', [0.0, 0.5, 0.0]],
-                       [1.0,  'rgb', [0.0, 1.0, 0.0]])
+def GetCITexture():
+    CI_ColorMap = ColorMap([0.0,  'rgb', [0.0, 0.0, 0.0]],
+                           [0.7,  'rgb', [0.0, 0.3, 0.0]],
+                           [0.5,  'rgb', [0.0, 0.7, 0.0]],
+                           [0.6,  'rgb', [0.0, 0.2, 0.0]],
+                           [0.65, 'rgb', [0.0, 1.0, 1.0]],
+                           [0.75, 'rgb', [0.0, 0.2, 0.0]],
+                           [0.8,  'rgb', [0.0, 0.5, 0.0]],
+                           [1.0,  'rgb', [0.0, 1.0, 0.0]])
 
-CI_Plasma_Marble = Pigment('marble', 'turbulence', 2.75, CI_ColorMap, 'scale', 2.5, 'rotate', [0, 7.5 ,0])
+    return Texture(Pigment('marble', 'turbulence', 2.75, CI_ColorMap, 'scale', 2.5, 'rotate', [0, 7.5 ,0]))
+
+CI_Texture = GetCITexture()
+
 # End of Colors and Textures #
 
-# Define a Wheel Object #
-WheelH = 1
-WheelRadius = 2
-SpokeW = (WheelRadius*2)+2
-SpokeAngle = 360/3
+def GearObj(fnumber, fps, texture=CI_Texture):
+    """Defines a Rotating Gear Obj at 'fnumber' with respect to 'fps' """
+    rps = 0.75
+    WheelH = 1
+    WheelRadius = 2
+    SpokeW = (WheelRadius*2)+2
+    SpokeAngle = 360/3
 
-## Static Objects ##
-Axel = Cylinder([0,-(WheelH/2),0], [0,(WheelH/2),0], WheelRadius)
-# Start -x -y -z End x y z
-Spoke = Box([-SpokeW/2,-(WheelH/2),0.5],[SpokeW/2,(WheelH/2),-0.5])
-
-Frames = []
-## Scene Animation ##
-while FRAMENUMBER < MAX_FRAMES:
-    FRAMENUMBER += 1
-    print("Rendering Frame: {} of {}".format(FRAMENUMBER,MAX_FRAMES))
+    ## Static Objects ##
+    Axel = Cylinder([0,-(WheelH/2),0], [0,(WheelH/2),0], WheelRadius)
+    # Start -x -y -z End x y z
+    Spoke = Box([-SpokeW/2,-(WheelH/2),0.5],[SpokeW/2,(WheelH/2),-0.5])
     Wheel = Object(Union(Axel,
                    Object(Spoke,'rotate',[0,SpokeAngle*1,0]),
                    Object(Spoke,'rotate',[0,SpokeAngle*2,0]),
                    Object(Spoke,'rotate',[0,SpokeAngle*3,0])
-                   ), Texture(CI_Plasma_Marble), 'rotate', [0,((360*24)/MAX_FRAMES)*FRAMENUMBER,0])
+                   ),texture, 'rotate', [0,((rps*360)/fps)*fnumber,0] )
+    return Wheel
 
+
+
+## Scene Animation ##
+Frames = []
+while FRAMENUMBER < MAX_FRAMES:
+    FRAMENUMBER += 1
+    print("Rendering Frame: {} of {}".format(FRAMENUMBER,MAX_FRAMES))
+    gnow = GearObj(FRAMENUMBER, FPS)
+    cnow = SceneCamNow(CAM_TYPE, FRAMENUMBER, FPS)
 
 # End of Wheel Object #
 
-    scene = Scene( CamType(CAM_TYPE,FPS,FRAMENUMBER),
-               objects = [sun,Wheel],
+    scene = Scene( cnow,
+               objects = [sun,gnow],
                included = ["colors.inc", "textures.inc"],
                defaults = [Finish( 'ambient', 0.1, 'diffuse', 0.9)] )
 
@@ -123,5 +133,5 @@ while FRAMENUMBER < MAX_FRAMES:
     Frames.append(ImageClip(ImageDir+ImageFrmtStr.format(OutputFileName,FRAMENUMBER)).set_duration(1/FPS))
     
 
-concat_clip = concatenate_videoclips(Frames, method="compose") # exception thrown MemoryError()
+concat_clip = concatenate_videoclips(Frames, method="chain") # exception thrown MemoryError()
 concat_clip.write_videofile(Mp4Dir+"{}.mp4".format(OutputFileName), fps=FPS)
