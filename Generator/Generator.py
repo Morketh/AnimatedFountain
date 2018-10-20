@@ -22,7 +22,7 @@ import time
 import os, math
 from vapory import *
 from moviepy.editor import *
-
+from lib import static
 """
 Kinematic Logo Animation
 By: Andrew Malone
@@ -76,9 +76,7 @@ def SceneCamNow(i,f_now,fps):
 # Generic sun object located at x,y,z
 sun = LightSource([-900,2500,-3500], 'color', 'White')
 
-CI_Texture = GetCITexture()
-
-# End of Colors and Textures #
+CI_Texture = static.GetCITexture()
 
 def GearObj(fnumber, fps, texture=CI_Texture):
     """Defines a Rotating Gear Obj at 'fnumber' with respect to 'fps' """
@@ -99,26 +97,29 @@ def GearObj(fnumber, fps, texture=CI_Texture):
                    ),texture, 'rotate', [0,((rps*360)/fps)*fnumber,0] )
     return Wheel
 
-
-
 ## Scene Animation ##
-Frames = []
-while FRAMENUMBER < MAX_FRAMES:
-    FRAMENUMBER += 1
-    print("Rendering Frame: {} of {}".format(FRAMENUMBER,MAX_FRAMES))
-    gnow = GearObj(FRAMENUMBER, FPS)
-    cnow = SceneCamNow(CAM_TYPE, FRAMENUMBER, FPS)
-
-# End of Wheel Object #
-
-    scene = Scene( cnow,
-               objects = [sun,gnow],
-               included = ["colors.inc", "textures.inc"],
-               defaults = [Finish( 'ambient', 0.1, 'diffuse', 0.9)] )
-
-    scene.render(ImageDir+ImageFrmtStr.format(OutputFileName,FRAMENUMBER), antialiasing=0.001, height=ImgHeight, width=ImgWidth, remove_temp=False) # Keep Pov File for debugging
-    Frames.append(ImageClip(ImageDir+ImageFrmtStr.format(OutputFileName,FRAMENUMBER)).set_duration(1/FPS))
+def RenderF2F(curFrame, stopFrame, _fps_=24):
+    """Render the scene between curFrame and stopFrame at a default of 24 fps"""
+    Frames = []
+    while curFrame < stopFrame:
+        curFrame += 1
+        print("Rendering Frame: {} of {}".format(curFrame,stopFrame))
+        gnow = GearObj(curFrame, _fps_)
+        cnow = SceneCamNow(CAM_TYPE, curFrame, _fps_)
     
+    # End of Wheel Object #
+    
+        scene = Scene( cnow,
+                   objects = [sun,gnow],
+                   included = ["colors.inc", "textures.inc"],
+                   defaults = [Finish( 'ambient', 0.1, 'diffuse', 0.9)] )
+    
+        scene.render(ImageDir+ImageFrmtStr.format(OutputFileName,curFrame), antialiasing=0.001, height=ImgHeight, width=ImgWidth, remove_temp=False) # Keep Pov File for debugging
+        Frames.append(ImageClip(ImageDir+ImageFrmtStr.format(OutputFileName,curFrame)).set_duration(1/_fps_))
+        
+    
+    concat_clip = concatenate_videoclips(Frames, method="chain") # exception thrown MemoryError()
+    concat_clip.write_videofile(Mp4Dir+"{}.mp4".format(OutputFileName), fps=_fps_)
 
-concat_clip = concatenate_videoclips(Frames, method="chain") # exception thrown MemoryError()
-concat_clip.write_videofile(Mp4Dir+"{}.mp4".format(OutputFileName), fps=FPS)
+
+RenderF2F(1, MAX_FRAMES)
