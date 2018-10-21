@@ -316,3 +316,5 @@ Temporary Items
 Generator/.vs/
 *.bak
 *.mp4
+Generator/__temp__.pov
+*.data

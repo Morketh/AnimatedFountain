@@ -21,3 +21,13 @@ def GetCITexture():
                            [1.0,  'rgb', [0.0, 1.0, 0.0]])
 
     return Texture(Pigment('marble', 'turbulence', 2.75, CI_ColorMap, 'scale', 2.5, 'rotate', [0, 7.5 ,0]))
+
+def Fountain(X=-2.5,Y=0,Z=0):
+    """Defines a fountain object located at X,Y,Z"""
+    FountThickness = .25
+    FountH = 1
+    FountR = 2.5
+    FountainCH = 1.5
+    FountainCR = .5
+    FountainObj = Union(Difference(Cylinder([0,0,0], [0,FountH,0], FountR ),Cylinder([0,FountThickness,0], [0,(FountH + FountThickness),0], (FountR - FountThickness) )),Cylinder([0,FountThickness,0], [0,FountainCH,0], FountainCR ))
+    return Object(FountainObj,'translate',[X,Y,Z],GetCITexture())
