@@ -63,9 +63,11 @@ class vector(object):
     def rtn(self):
         return self.x, self.y, self.z
 
-class Line(object):
+class LineMotion(object):
     def __init__(self,xa,ya,za,xb,yb,zb):
-        """Build a Line!"""
+        """Build a Line! Defines total displacement between 2 points
+        in order to get any point along the path in respect to time
+       PointInTime() may be called."""
         self.PointA = vector(xa,ya,za)
         self.PointB = vector(xb,yb,zb)
 
@@ -87,8 +89,7 @@ class Line(object):
 def SceneCamNow(i,f_now,fps):
     """Returns camera at time if i == 2 elif i == 1 static cam """
     step=50
-    path = Line(-35.0, 25.0, -35.0, 0.0, 35.0, 0.0)
-    
+    path = LineMotion(-35.0, 25.0, -35.0, 0.0, 35.0, 0.0)
     #
     if i == 1: # Static Cam
         return Camera('angle', 45, 'location', [-35.0, 25.0, -35.0], 'look_at', [0 , 1.0 , 0.0])
@@ -103,25 +104,6 @@ def SceneCamNow(i,f_now,fps):
 sun = LightSource([-900,2500,-3500], 'color', 'White')
 
 CI_Texture = static.GetCITexture()
-
-def GearObj(fnumber, fps, texture=CI_Texture):
-    """Defines a Rotating Gear Obj at 'fnumber' with respect to 'fps' """
-    rps = .25/SECOND
-    GearH = 1
-    GearRad = 2
-    SpokeW = GearRad*3
-    SpokeAngle = 360/3
-
-    ## Static Objects ##
-    Axel = Cylinder([0,-(GearH/2),0], [0,(GearH/2),0], GearRad)
-    # Start -x -y -z End x y z
-    Spoke = Box([-SpokeW/2,-(GearH/2),0.5],[SpokeW/2,(GearH/2),-0.5])
-    Gear = Object(Union(Axel,
-                  Object(Spoke,'rotate',[0,SpokeAngle*1,0]),
-                  Object(Spoke,'rotate',[0,SpokeAngle*2,0]),
-                  Object(Spoke,'rotate',[0,SpokeAngle*3,0])
-                  ),texture, 'rotate', [0,((rps*360*fnumber)/fps),0] )
-    return Gear
 
 ## Scene Animation ##
 def RenderF2F(curFrame, stopFrame, _fps_=24):
