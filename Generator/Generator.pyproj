@@ -30,6 +30,7 @@
   <ItemGroup>
     <Content Include="fountain_particles.pov" />
     <Content Include="requirements.txt" />
+    <Content Include="ffmpeg.bat" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="lib\" />

@@ -1,0 +1,1 @@
+C:\Users\drewm\AppData\Local\imageio\ffmpeg\ffmpeg-win32-v3.2.4.exe -r 80 -start_number 0 -i C:\Users\drewm\source\repos\Morketh\AnimatedFountain\Generator\img\ParticleSystem\fountain%3d.png -c:v libx264 -vf "fps=80,format=yuv420p" C:\Users\drewm\source\repos\Morketh\AnimatedFountain\Generator\mp4\ParticleFountain_120Frames_30FPS.mp4

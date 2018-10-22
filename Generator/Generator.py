@@ -23,7 +23,7 @@ import os, math
 from vapory import *
 from moviepy.editor import *
 from lib import static
-from imageio.plugins.ffmpeg import get_exe
+#from imageio.plugins.ffmpeg import get_exe
 
 """
 Kinematic Logo Animation
@@ -45,6 +45,7 @@ StartFrame = 0
 
 # SCENE GLOBALS #
 CWD = os.getcwd()
+SECOND = 1
 
 ## Internal Variables ##
 MAX_FRAMES = AnimationTime*FPS
@@ -78,9 +79,9 @@ class Line(object):
     def PointInTime(self,frame,fps,speed=1):
         """Returns (x,y,z) at time for the given line"""
         # distance at time 'frame' ((1/fps)*frame)
-        X = self.PointA.x+((speed/fps)*frame)
-        Y = self.PointA.y+((speed/fps)*frame)
-        Z = self.PointA.z+((speed/fps)*frame)
+        X = (frame*speed+self.PointA.x*fps)/fps
+        Y = (frame*speed+self.PointA.y*fps)/fps
+        Z = (frame*speed+self.PointA.z*fps)/fps
         return X,Y,Z
 
 def SceneCamNow(i,f_now,fps):
@@ -105,10 +106,10 @@ CI_Texture = static.GetCITexture()
 
 def GearObj(fnumber, fps, texture=CI_Texture):
     """Defines a Rotating Gear Obj at 'fnumber' with respect to 'fps' """
-    rps = 1/4
+    rps = .25/SECOND
     GearH = 1
     GearRad = 2
-    SpokeW = (GearRad*2)+2
+    SpokeW = GearRad*3
     SpokeAngle = 360/3
 
     ## Static Objects ##
@@ -119,7 +120,7 @@ def GearObj(fnumber, fps, texture=CI_Texture):
                   Object(Spoke,'rotate',[0,SpokeAngle*1,0]),
                   Object(Spoke,'rotate',[0,SpokeAngle*2,0]),
                   Object(Spoke,'rotate',[0,SpokeAngle*3,0])
-                  ),texture, 'rotate', [0,((rps*360)/fps)*fnumber,0] )
+                  ),texture, 'rotate', [0,((rps*360*fnumber)/fps),0] )
     return Gear
 
 ## Scene Animation ##
@@ -129,8 +130,8 @@ def RenderF2F(curFrame, stopFrame, _fps_=24):
     while curFrame < stopFrame:
         curFrame += 1
         print("Rendering Frame: {} of {}".format(curFrame,stopFrame))
-        #gnow = GearObj(curFrame, _fps_)
-        gnow = static.Fountain()
+        gnow = GearObj(curFrame, _fps_)
+        #gnow = static.Fountain()
         cnow = SceneCamNow(CAM_TYPE, curFrame, _fps_)
 
         scene = Scene( cnow,
@@ -145,6 +146,6 @@ def RenderF2F(curFrame, stopFrame, _fps_=24):
     concat_clip.write_videofile(Mp4Dir+"{}.mp4".format(OutputFileName), fps=_fps_)
 
 
-print(get_exe())
+#print(get_exe())
 #if __name__ == "__main__":
-#RenderF2F(StartFrame, MAX_FRAMES,FPS)
+RenderF2F(StartFrame, MAX_FRAMES,FPS)
