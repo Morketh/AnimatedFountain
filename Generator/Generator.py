@@ -22,7 +22,7 @@ import time
 import os, math
 from vapory import *
 from moviepy.editor import *
-from lib import static
+from lib import static, motionObjs
 #from imageio.plugins.ffmpeg import get_exe
 
 """
@@ -35,8 +35,8 @@ By: Andrew Malone
 SceneName = "Fountain"
 ImgWidth = 1920
 ImgHeight = 1080
-AnimationTime = 10 # seconds
-FPS = 120
+AnimationTime = 20 # seconds
+FPS = 80
 CAM_TYPE = 1 # see CamType() for a list of camera definitions
 
 # starting frame for animations this MUST satisfy 0 < FRAMENUMBER < MAX_FRAMES
@@ -45,7 +45,6 @@ StartFrame = 0
 
 # SCENE GLOBALS #
 CWD = os.getcwd()
-SECOND = 1
 
 ## Internal Variables ##
 MAX_FRAMES = AnimationTime*FPS
@@ -70,35 +69,36 @@ class LineMotion(object):
        PointInTime() may be called."""
         self.PointA = vector(xa,ya,za)
         self.PointB = vector(xb,yb,zb)
+        Distance = self._Dist_()
 
-    def Dist(self):
+    def _Dist_(self):
         """Returns distance between Pa and Pb"""
-        DeltaX = self.PointA.x - self.PointB.x
-        DeltaY = self.PointA.y - self.PointB.y
-        DeltaZ = self.PointA.z - self.PointB.z
-        return math.sqrt((DeltaX * DeltaX) + (DeltaY * DeltaY) + (DeltaZ * DeltaZ))
+        self.DeltaX = self.PointA.x - self.PointB.x
+        self.DeltaY = self.PointA.y - self.PointB.y
+        self.DeltaZ = self.PointA.z - self.PointB.z
+        return math.sqrt((self.DeltaX * self.DeltaX) + (self.DeltaY * self.DeltaY) + (self.DeltaZ * self.DeltaZ))
 
     def PointInTime(self,frame,fps,speed=1):
         """Returns (x,y,z) at time for the given line"""
         # distance at time 'frame' ((1/fps)*frame)
-        X = (frame*speed+self.PointA.x*fps)/fps
-        Y = (frame*speed+self.PointA.y*fps)/fps
-        Z = (frame*speed+self.PointA.z*fps)/fps
+        X = (frame*speed+self.DeltaX*fps)/fps
+        Y = (frame*speed+self.DeltaY*fps)/fps
+        Z = (frame*speed+self.DeltaZ*fps)/fps
         return X,Y,Z
 
 def SceneCamNow(i,f_now,fps):
     """Returns camera at time if i == 2 elif i == 1 static cam """
     step=50
-    path = LineMotion(-35.0, 25.0, -35.0, 0.0, 35.0, 0.0)
+    path = LineMotion(-35.0, 25.0, -35.0, 0.0, 60.0, 0.0)
     #
     if i == 1: # Static Cam
-        return Camera('angle', 45, 'location', [-35.0, 25.0, -35.0], 'look_at', [0 , 1.0 , 0.0])
+        return Camera('angle', 45, 'location', [0, 35.0, 0.0], 'look_at', [0 , 0.0 , 0.0])
     elif i == 2: # Animated Cam
         point_now = path.PointInTime(f_now,fps,step)
         if point_now < path.PointB.rtn():
             return Camera('angle', 45, 'location', point_now, 'look_at', [0 , 1.0 , 0.0])
         else:
-            return Camera('angle', 45, 'location', path.PointB.rtn(), 'look_at', [0 , 1.0 , 0.0])
+            return Camera('angle', 45, 'location', [path.PointB.x, path.PointB.y, path.PointB.z], 'look_at', [0 , 1.0 , 0.0])
 
 # Generic sun object located at x,y,z
 sun = LightSource([-900,2500,-3500], 'color', 'White')
@@ -112,12 +112,13 @@ def RenderF2F(curFrame, stopFrame, _fps_=24):
     while curFrame < stopFrame:
         curFrame += 1
         print("Rendering Frame: {} of {}".format(curFrame,stopFrame))
-        gnow = GearObj(curFrame, _fps_)
+        gear = motionObjs.GearObj(curFrame, _fps_,offset=vector(0,0,4))
+        # insert Textured Loading bar to scale from left to right of screen over total frames
         #gnow = static.Fountain()
         cnow = SceneCamNow(CAM_TYPE, curFrame, _fps_)
 
         scene = Scene( cnow,
-                   objects = [sun,gnow],
+                   objects = [sun,gear],
                    included = ["colors.inc", "textures.inc"],
                    defaults = [Finish( 'ambient', 0.1, 'diffuse', 0.9)] )
 
