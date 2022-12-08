@@ -1,5 +1,5 @@
 astroid==2.1.0.dev0
-certifi==2018.10.15
+certifi==2022.12.7
 chardet==3.0.4
 colorama==0.4.0
 decorator==4.3.0
